@@ -1,16 +1,15 @@
 import subprocess
 import database_filling
+import sys
 import platform
+from pathlib import Path
 
 
 if __name__ == '__main__':
-    if platform.system() == 'Windows':
-        subprocess.run(['python', '-m', 'venv', 'venv'])
-        subprocess.run(['venv\\Scripts\\activate.bat'])
-    else:
-        subprocess.run(['python3', '-m', 'venv', 'venv'])
-        subprocess.run(['sh', 'venv/bin/activate'])
-    subprocess.run(['pip', 'install', '-r', 'requirements.txt'])
+    venv_dir = Path(__file__).parent / 'venv'
+    python_executable = venv_dir / 'bin' / 'python'
+    subprocess.run([sys.executable, '-m', 'venv', str(venv_dir)])
+    subprocess.run([str(python_executable), '-m', 'pip', 'install', '-r', 'requirements.txt'])
     subprocess.run(['alembic', 'revision', '--autogenerate'])
     subprocess.run(['alembic', 'upgrade', 'head'])
     database_filling.fill_database()
