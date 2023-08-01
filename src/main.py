@@ -1,8 +1,7 @@
 from datetime import datetime
 from typing import Annotated
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Path
 from fastapi.encoders import jsonable_encoder
-from fastapi.templating import Jinja2Templates
 from fastapi.responses import JSONResponse
 from src.models import Geoname
 from sqlalchemy.orm import Session, sessionmaker
@@ -34,8 +33,11 @@ def read_geoname(geonameid: int, db: Annotated[Session, Depends(get_db)]):
     return JSONResponse(content={'data': jsonable_encoder(data)})
 
 
-@app.get('/cities/')
-def get_cities(page: int, page_limit: int, db: Annotated[Session, Depends(get_db)]):
+@app.get('/cities/{page}/{page_limit}/')
+def get_cities(page: Annotated[int, Path(ge=1)],
+               page_limit: Annotated[int, Path(ge=1)],
+               db: Annotated[Session, Depends(get_db)]
+               ):
     start_index = (page - 1) * page_limit
     data = db.query(Geoname).offset(start_index).limit(page_limit).all()
     if not data:
@@ -43,9 +45,9 @@ def get_cities(page: int, page_limit: int, db: Annotated[Session, Depends(get_db
     return JSONResponse(content={'data': jsonable_encoder(data)})
 
 
-@app.get('/compare_cities/')
+@app.get('/compare_cities/{city1}/city2/')
 def compare_cities(city1: str, city2: str, db: Annotated[Session, Depends(get_db)]):
-    # Получаем информацию о первом городе
+
     city1_data = db.query(Geoname).filter(Geoname.alternatenames.ilike(f'%{city1}%')).order_by(
         desc(Geoname.population)).first()
     if city1_data is None:
@@ -79,11 +81,11 @@ def compare_cities(city1: str, city2: str, db: Annotated[Session, Depends(get_db
     })
 
 
-@app.get('/autocomplete_city/')
+@app.get('/autocomplete_city/{prefix}/')
 def autocomplete_city(prefix: str, db: Annotated[Session, Depends(get_db)]):
-    cities = db.query(Geoname).filter(Geoname.alternatenames.ilike(f"%{prefix}%")).limit(10).all()
-    suggestions = [city.alternatenames for city in cities]
-    return JSONResponse(content={'suggestions': suggestions})
+    cities = db.query(Geoname).filter(Geoname.name.ilike(f"%{prefix}%")).limit(10).all()
+    suggestions = [city.name for city in cities]
+    return JSONResponse(content={'suggestions': jsonable_encoder(suggestions)})
 
 
 
