@@ -39,7 +39,7 @@ def fill_database():
             )
             session.add(data)
         session.commit()
+    session.close()
 
 
-session.close()
 
