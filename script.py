@@ -20,17 +20,18 @@ if __name__ == '__main__':
     subprocess.run(['python3', '-m', 'venv', venv_path], check=True)
 
     venv_activate = f'{venv_path}/bin/activate'
-    install_command = f'source {venv_activate} && pip install -r requirements.txt'
+    install_command = f'sh {venv_activate} && pip install -r requirements.txt'
     subprocess.run(install_command, shell=True, check=True, executable='/bin/bash')
 
-    alembic_revision = f'source {venv_activate} && alembic revision --autogenerate'
+    alembic_revision = f'sh {venv_activate} && alembic revision --autogenerate'
     subprocess.run(alembic_revision, shell=True, check=True, executable='/bin/bash')
 
-    alembic_upgrade = f'source {venv_activate} && alembic upgrade head'
+    alembic_upgrade = f'sh {venv_activate} && alembic upgrade head'
     subprocess.run(alembic_upgrade, shell=True, check=True, executable='/bin/bash')
 
+    import database_filling
     database_filling.fill_database()
 
-    uvicorn = f'source {venv_activate} && uvicorn src.main:app --reload --host 127.0.0.1 --port 8000'
+    uvicorn = f'sh {venv_activate} && uvicorn src.main:app --reload --host 127.0.0.1 --port 8000'
     subprocess.run(uvicorn, shell=True, check=True, executable='/bin/bash')
 
