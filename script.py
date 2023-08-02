@@ -15,19 +15,20 @@ from pathlib import Path
 # subprocess.run(['uvicorn', 'src.main:app', '--reload', '--host', '127.0.0.1', '--port', '8000'])
 
 if __name__ == '__main__':
-    venv_path = './venv'
 
-    subprocess.run(['python3', '-m', 'venv', venv_path], check=True)
+    subprocess.run(['python3', '-m', 'venv', 'venv'], check=True)
 
-    venv_activate = f'{venv_path}/bin/activate'
-    install_command = f'sh {venv_activate} && pip install -r requirements.txt'
-    subprocess.run(install_command, shell=True, check=True, executable='/bin/bash')
+    install_command = 'source venv/bin/activate ' \
+                      '&& pip install -r requirements.txt'
+    subprocess.run(install_command, shell=True, check=True)
 
-    alembic_upgrade = f'sh {venv_activate} && alembic upgrade head'
-    subprocess.run(alembic_upgrade, shell=True, check=True, executable='/bin/bash')
+    alembic_upgrade = 'source venv/bin/activate ' \
+                      '&& alembic upgrade head'
+    subprocess.run(alembic_upgrade, shell=True, check=True)
 
     fill_database()
 
-    uvicorn = f'sh {venv_activate} && uvicorn src.main:app --reload --host 127.0.0.1 --port 8000'
-    subprocess.run(uvicorn, shell=True, check=True, executable='/bin/bash')
+    uvicorn = 'source venv/bin/activate ' \
+              '&& uvicorn src.main:app --reload --host 127.0.0.1 --port 8000'
+    subprocess.run(uvicorn, shell=True, check=True)
 
