@@ -1,5 +1,5 @@
 import subprocess
-import database_filling
+from database_filling import fill_database
 import sys
 import platform
 from pathlib import Path
@@ -23,14 +23,10 @@ if __name__ == '__main__':
     install_command = f'sh {venv_activate} && pip install -r requirements.txt'
     subprocess.run(install_command, shell=True, check=True, executable='/bin/bash')
 
-    alembic_revision = f'sh {venv_activate} && alembic revision --autogenerate'
-    subprocess.run(alembic_revision, shell=True, check=True, executable='/bin/bash')
-
     alembic_upgrade = f'sh {venv_activate} && alembic upgrade head'
     subprocess.run(alembic_upgrade, shell=True, check=True, executable='/bin/bash')
 
-    import database_filling
-    database_filling.fill_database()
+    fill_database()
 
     uvicorn = f'sh {venv_activate} && uvicorn src.main:app --reload --host 127.0.0.1 --port 8000'
     subprocess.run(uvicorn, shell=True, check=True, executable='/bin/bash')
