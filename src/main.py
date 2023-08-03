@@ -81,8 +81,8 @@ def compare_cities(city1: str, city2: str, db: Annotated[Session, Depends(get_db
     })
 
 
-@app.get('/autocomplete_city/{prefix}/')
-def autocomplete_city(prefix: str, db: Annotated[Session, Depends(get_db)]):
+@app.get('/live_search_city/{prefix}/')
+def live_search(prefix: str, db: Annotated[Session, Depends(get_db)]):
     cities = db.query(Geoname).filter(Geoname.name.ilike(f"%{prefix}%")).limit(10).all()
     suggestions = [city.name for city in cities]
     return JSONResponse(content={'suggestions': jsonable_encoder(suggestions)})
